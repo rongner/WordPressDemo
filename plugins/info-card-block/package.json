@@ -1,0 +1,16 @@
+{
+  "name": "info-card-block",
+  "version": "1.0.0",
+  "description": "Info Card Gutenberg block for WordPress portfolio demo",
+  "private": true,
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:js": "wp-scripts lint-js",
+    "lint:css": "wp-scripts lint-style",
+    "format": "wp-scripts format"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
+  }
+}

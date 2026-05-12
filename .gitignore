@@ -1,0 +1,7 @@
+plugins/info-card-block/node_modules/
+plugins/info-card-block/build/
+
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp

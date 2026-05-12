@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-php:
+    name: PHPCS (WordPress coding standards)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install PHPCS + WPCS
+        run: |
+          composer global require squizlabs/php_codesniffer wp-coding-standards/wpcs --no-interaction
+          phpcs --config-set installed_paths $(composer global config home)/vendor/wp-coding-standards/wpcs
+
+      - name: Install cs2pr
+        run: composer global require staabm/annotate-pull-request-from-checkstyle --no-interaction
+
+      - name: Lint plugins
+        run: phpcs --standard=WordPress --report=checkstyle plugins/ | cs2pr
+
+      - name: Lint themes
+        run: phpcs --standard=WordPress --report=checkstyle themes/ | cs2pr
+
+  build-js:
+    name: Build JS (block)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: plugins/info-card-block/package-lock.json
+
+      - name: Install dependencies
+        working-directory: plugins/info-card-block
+        run: npm ci
+
+      - name: Build block
+        working-directory: plugins/info-card-block
+        run: npm run build
+
+      - name: Verify build artifacts
+        working-directory: plugins/info-card-block
+        run: |
+          test -f build/index.js        || (echo "build/index.js missing"        && exit 1)
+          test -f build/index.css       || (echo "build/index.css missing"       && exit 1)
+          test -f build/style-style.css || (echo "build/style-style.css missing" && exit 1)
